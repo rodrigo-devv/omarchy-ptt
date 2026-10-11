@@ -1,7 +1,9 @@
 # Publicar a beta no GitHub
 
-Destino preparado: `rodrigo-devv/omarchy-ptt`, repositório público independente.
-A autorização para publicar foi dada durante a criação da versão reutilizável.
+Destino proposto: `rodrigo-devv/omarchy-ptt`, repositório público independente.
+A intenção de publicar foi autorizada durante a criação da versão reutilizável.
+A revisão automática exige confirmação específica do destino e do conteúdo
+público antes de executar o script. Nada foi enviado ao GitHub ainda.
 
 O repositório local contém apenas fonte, testes, perfis, documentação e a
 captura da janela de configuração em ambiente isolado. Dados do Discord,
