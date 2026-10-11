@@ -5,7 +5,7 @@ Guarde uma distribuição versionada do Omarchy PTT e um perfil, por exemplo:
 ```text
 meu-pack/
 ├── apps/
-│   └── omarchy-ptt-0.1.0-beta.2/
+│   └── omarchy-ptt-0.1.0-beta.3/
 └── profiles/
     └── ptt.json
 ```
@@ -18,7 +18,7 @@ Depois de instalar Omarchy e criar o usuário do desktop, execute **como esse
 usuário**:
 
 ```bash
-./apps/omarchy-ptt-0.1.0-beta.2/install.sh \
+./apps/omarchy-ptt-0.1.0-beta.3/install.sh \
   --install-deps --profile ./profiles/ptt.json
 ```
 
@@ -47,3 +47,5 @@ durante a instalação em sessão. No modo offline, bindings gerados dinamicamen
 não podem ser consultados; revise o botão antes de preparar um desktop com
 atalhos próprios. Em um fresh install padrão, o perfil Mouse9 é o ponto de
 partida. A solução local anterior precisa de `--migrate`.
+
+Para homologar uma máquina nova, preencha [FRESH-INSTALL-CHECKLIST.md](FRESH-INSTALL-CHECKLIST.md).

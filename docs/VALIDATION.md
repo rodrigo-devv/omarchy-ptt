@@ -1,4 +1,4 @@
-# Validação da versão 0.1.0-beta.2
+# Validação da versão 0.1.0-beta.3
 
 Data: 11/10/2026. Headers e parser locais: Hyprland 0.56.2.
 
@@ -57,18 +57,19 @@ concluiu depois da correção. Esse incidente pertence ao teste de desenvolvimen
 que não roda durante instalação do pacote.
 
 Evidência manual: a solução original foi confirmada pelo usuário com Discord
-em XWayland, foco preservado e soltura após mudar de workspace. Ainda não foi
-confirmado um teste de chamada com a beta nesta sessão, nem uma instalação
-completa em outra máquina ou VM recém-instalada. A versão permanece beta por esse motivo.
+em XWayland, foco preservado e soltura após mudar de workspace. Após a correção beta.3, o usuário confirmou que o comportamento está
+funcionando bem nesta máquina. Ainda falta validar uma instalação completa
+em outra máquina ou VM recém-instalada; a versão permanece beta por esse motivo.
 
 
-## Correção local beta.3
+## Correção beta.3
 
 Durante a investigação do salto de workspace, o Mouse9 só possuía os dois
 bindings do PTT. A ponte estava pronta. Uma observação passiva do X11 identificou
 pedidos `_NET_ACTIVE_WINDOW` de um aplicativo Wine em outro workspace, enquanto
-a regra existente protegia somente o Discord. A relação exata com o clique
-relatado no workspace 3 ainda depende de reprodução manual.
+a regra existente protegia somente o Discord. Esses pedidos são uma explicação provável para o salto. A confirmação do
+usuário demonstra que a proteção resolveu o comportamento relatado, sem
+afirmar que todos os caminhos internos do aplicativo foram rastreados.
 
 A correção habilita uma regra temporária `focus_on_activate=false` para XWayland
 antes de encaminhar PTT nativo/sintético e a desabilita 200 ms após o release.
@@ -76,5 +77,6 @@ Ela não força retorno ao workspace anterior nem bloqueia mudanças manuais.
 Regra e timer são reutilizados; novo hold cancela a desativação pendente; reload
 e shutdown limpam a proteção. O teste Lua exercita esse ciclo completo.
 
-Esta correção será validada localmente antes de publicar outra release. A
-release pública beta.2 continua imutável.
+O usuário confirmou: “Está funcionando bem agora”, após instalar a beta.3,
+e autorizou subir a correção ao repositório. A release beta.2 continua imutável.
+A suíte completa voltou a passar nos 37 testes, incluindo a proteção de foco.

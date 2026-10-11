@@ -4,7 +4,7 @@ Push-to-talk do Discord entre workspaces, preservando o foco e a soltura do
 botão após trocar de workspace. Instalação por usuário, perfil portátil e
 inicialização automática com a sessão gráfica.
 
-**Versão: 0.1.0-beta.2.** Baseada na solução funcional validada no Omarchy
+**Versão: 0.1.0-beta.3.** Baseada na solução funcional validada no Omarchy
 4.0.0.alpha com Hyprland 0.56.2 e o cliente oficial stable do Discord.
 A distribuição reutilizável é beta: ainda não há validação em outras máquinas.
 

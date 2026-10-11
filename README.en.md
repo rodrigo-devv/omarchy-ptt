@@ -1,7 +1,7 @@
 # Omarchy PTT
 
 User-scoped Discord push-to-talk across Hyprland workspaces, including physical
-button release after changing workspaces. Version **0.1.0-beta.2**.
+button release after changing workspaces. Version **0.1.0-beta.3**.
 
 The original workflow was manually confirmed on Omarchy 4.0.0.alpha,
 Hyprland 0.56.2 and the official stable Discord client. The reusable package
