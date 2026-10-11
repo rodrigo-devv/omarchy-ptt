@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.so
+dist/
+.venv/
+.validation/

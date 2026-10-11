@@ -1,0 +1,115 @@
+-- Native XWayland input stays native; Wayland input is
+-- forwarded by a persistent bridge over ordered Hyprland IPC custom events.
+-- No process is launched by either button callback.
+local linux_button = @LINUX_BUTTON@
+local ptt_button = "mouse:" .. tostring(linux_button)
+local ready_path = (os.getenv("XDG_RUNTIME_DIR") or "/nonexistent") .. "/omarchy-ptt.ready"
+local signature = os.getenv("HYPRLAND_INSTANCE_SIGNATURE")
+local expected_profile = @FINGERPRINT@
+
+o.window("^(discord)$", { focus_on_activate = false })
+
+local function emit(action)
+  hl.dispatch(hl.dsp.event("omarchy-ptt:" .. action))
+end
+
+if _G.omarchy_ptt then
+  emit("reset")
+  for _, subscription in ipairs(_G.omarchy_ptt.subscriptions) do
+    subscription:remove()
+  end
+end
+local state = { route = nil, subscriptions = {} }
+_G.omarchy_ptt = state
+
+local function bridge_ready()
+  local file = io.open(ready_path, "r")
+  if not file then return false end
+  local instance, updated = file:read("*l"), tonumber(file:read("*l"))
+  file:read("*l") -- mode
+  file:read("*l") -- pid
+  local profile = file:read("*l")
+  file:close()
+  return instance == signature and profile == expected_profile and updated and
+    os.time() - updated >= 0 and os.time() - updated <= 2
+end
+
+local function xwayland_focused()
+  local window = hl.get_active_window()
+  return window ~= nil and window.xwayland == true
+end
+
+local function release_hold()
+  local route = state.route
+  state.route = nil
+  if route then emit("up") end
+  return route
+end
+
+-- The release observer runs before the held-button check that can discard
+-- releases after changing workspace in Hyprland 0.56.2.
+local physical_release_available = false
+for _, plugin in ipairs(hl.get_loaded_plugins()) do
+  if plugin.name == "omarchy-ptt-release" then
+    table.insert(state.subscriptions, hl.on("omarchy.ptt.button.release", function(button)
+      if button == linux_button then release_hold() end
+    end))
+    physical_release_available = true
+    break
+  end
+end
+state.physical_release_available = physical_release_available
+
+-- If a future update makes the observer unavailable, stop PTT on a workspace
+-- change rather than allowing an unobservable release to leave it active.
+if physical_release_available then
+  table.insert(state.subscriptions, hl.on("workspace.active", function()
+    -- The compositor may also release native X11 input during the switch.
+    -- Reassert that still-physical hold through the bridge after the switch.
+    if state.route == "native" then
+      state.route = "bridge"
+      emit("promote")
+    end
+  end))
+else
+  table.insert(state.subscriptions, hl.on("workspace.active", release_hold))
+end
+
+-- Replaces the previous pass bind, which released immediately from Wayland.
+hl.unbind(ptt_button)
+o.bind(ptt_button, "Discord PTT down (Omarchy PTT)", function()
+  if not hl.get_window("class:^(discord)$") or not bridge_ready() then
+    return { ok = false }
+  end
+  if xwayland_focused() then
+    state.route = "native"
+    emit("native-down")
+    return { ok = false } -- Let the physical button reach XWayland normally.
+  end
+  state.route = "bridge"
+  emit("down")
+end, {
+  ignore_mods = true, dont_inhibit = true, allow_input_capture = true,
+  submap_universal = true, auto_consuming = true,
+})
+
+o.bind(ptt_button, "Discord PTT up (Omarchy PTT)", function()
+  local route = release_hold()
+  if not route then return { ok = false } end
+  if route == "native" then return { ok = false } end
+end, {
+  release = true, locked = true,
+  ignore_mods = true, dont_inhibit = true, allow_input_capture = true,
+  submap_universal = true, auto_consuming = true,
+})
+
+table.insert(state.subscriptions, hl.on("window.active", function()
+  if state.route == "native" and not xwayland_focused() then
+    state.route = "bridge"
+    emit("promote")
+  end
+end))
+
+table.insert(state.subscriptions, hl.on("hyprland.shutdown", function()
+  emit("reset")
+end))

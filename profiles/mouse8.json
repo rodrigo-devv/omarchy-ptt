@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "linux_button": 275,
+  "x11_button": 8,
+  "window_class": "discord",
+  "executable": "discord"
+}
