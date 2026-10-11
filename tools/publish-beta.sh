@@ -20,14 +20,13 @@ if git remote get-url origin >/dev/null 2>&1; then
 else
   git remote add origin "https://github.com/$repository.git"
 fi
-gh auth setup-git
 if git rev-parse "$tag" >/dev/null 2>&1; then
   [[ $(git rev-parse "$tag^{commit}") == $(git rev-parse HEAD) ]] || { echo 'Tag já aponta para outro commit.' >&2; exit 1; }
 else
   git tag "$tag"
 fi
-git push origin main
-git push origin "$tag"
+git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin main
+git -c credential.helper= -c 'credential.helper=!gh auth git-credential' push origin "$tag"
 if ! gh release view "$tag" --repo "$repository" >/dev/null 2>&1; then
   gh release create "$tag" --repo "$repository" --prerelease --title "Omarchy PTT $version" \
     --notes-file docs/RELEASE-NOTES.md \
