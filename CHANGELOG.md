@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.0-beta.3 — correção local em validação
+
+- Proteção temporária contra pedidos de ativação de outros aplicativos
+  XWayland durante o PTT, cobrindo clientes além do Discord.
+- Proteção acompanha o hold e 200 ms após a soltura; cliques e dispatchers
+  manuais continuam disponíveis. Reutiliza uma regra e um timer.
+- Limpeza após reload e shutdown, com teste de release e novo hold rápido.
+- Reprodução manual do salto no workspace do Discord ainda precisa confirmar
+  a correção antes de uma nova publicação.
+
 ## 0.1.0-beta.2 — 2026-10-11
 
 - Seletor gráfico de botão com confirmação após soltura e cancelamento.

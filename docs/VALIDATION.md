@@ -60,3 +60,21 @@ Evidência manual: a solução original foi confirmada pelo usuário com Discord
 em XWayland, foco preservado e soltura após mudar de workspace. Ainda não foi
 confirmado um teste de chamada com a beta nesta sessão, nem uma instalação
 completa em outra máquina ou VM recém-instalada. A versão permanece beta por esse motivo.
+
+
+## Correção local beta.3
+
+Durante a investigação do salto de workspace, o Mouse9 só possuía os dois
+bindings do PTT. A ponte estava pronta. Uma observação passiva do X11 identificou
+pedidos `_NET_ACTIVE_WINDOW` de um aplicativo Wine em outro workspace, enquanto
+a regra existente protegia somente o Discord. A relação exata com o clique
+relatado no workspace 3 ainda depende de reprodução manual.
+
+A correção habilita uma regra temporária `focus_on_activate=false` para XWayland
+antes de encaminhar PTT nativo/sintético e a desabilita 200 ms após o release.
+Ela não força retorno ao workspace anterior nem bloqueia mudanças manuais.
+Regra e timer são reutilizados; novo hold cancela a desativação pendente; reload
+e shutdown limpam a proteção. O teste Lua exercita esse ciclo completo.
+
+Esta correção será validada localmente antes de publicar outra release. A
+release pública beta.2 continua imutável.

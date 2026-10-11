@@ -15,12 +15,46 @@ end
 
 if _G.omarchy_ptt then
   emit("reset")
+  if _G.omarchy_ptt.cleanup_focus_guard then _G.omarchy_ptt.cleanup_focus_guard() end
   for _, subscription in ipairs(_G.omarchy_ptt.subscriptions) do
     subscription:remove()
   end
 end
 local state = { route = nil, subscriptions = {} }
 _G.omarchy_ptt = state
+
+-- XTEST is shared by XWayland clients. A different client can request
+-- activation when receiving PTT input, even with Discord's rule in place.
+-- Block only application activation requests during a hold and its release.
+-- Manual focus/workspace dispatchers and pointer clicks remain available.
+local function cleanup_focus_guard()
+  if state.focus_timer then state.focus_timer:set_enabled(false); state.focus_timer = nil end
+  if state.focus_guard then state.focus_guard:set_enabled(false); state.focus_guard = nil end
+end
+state.cleanup_focus_guard = cleanup_focus_guard
+
+local function protect_focus()
+  if state.focus_timer then state.focus_timer:set_enabled(false) end
+  if not state.focus_guard then
+    state.focus_guard = hl.window_rule({ match = { xwayland = true }, focus_on_activate = false })
+  end
+  -- set_enabled also refreshes existing windows synchronously, before input.
+  state.focus_guard:set_enabled(true)
+end
+
+local function finish_focus_guard()
+  -- Reuse one timer and one rule instead of accumulating compositor objects.
+  if state.focus_timer then
+    state.focus_timer:set_enabled(true)
+    return
+  end
+  -- The bridge's X11 release is asynchronous; include requests triggered by it.
+  state.focus_timer = hl.timer(function()
+    if state.route == nil and state.focus_guard then
+      state.focus_guard:set_enabled(false)
+    end
+  end, { timeout = 200, type = "oneshot" })
+end
 
 local function bridge_ready()
   local file = io.open(ready_path, "r")
@@ -42,7 +76,7 @@ end
 local function release_hold()
   local route = state.route
   state.route = nil
-  if route then emit("up") end
+  if route then emit("up"); finish_focus_guard() end
   return route
 end
 
@@ -81,6 +115,7 @@ o.bind(ptt_button, "Discord PTT down (Omarchy PTT)", function()
   if not hl.get_window("class:^(discord)$") or not bridge_ready() then
     return { ok = false }
   end
+  protect_focus()
   if xwayland_focused() then
     state.route = "native"
     emit("native-down")
@@ -112,4 +147,5 @@ end))
 
 table.insert(state.subscriptions, hl.on("hyprland.shutdown", function()
   emit("reset")
+  cleanup_focus_guard()
 end))
