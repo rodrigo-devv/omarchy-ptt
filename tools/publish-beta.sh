@@ -2,11 +2,11 @@
 set -euo pipefail
 cd -- "$(dirname -- "$0")/.."
 version=$(/usr/bin/python3 -c 'import sys; sys.path.insert(0,"src"); from omarchy_ptt import __version__; print(__version__)')
-repository="rodrigo-devv/omarchy-ptt"
+repository="s3xz/omarchy-ptt"
 tag="v$version"
 gh auth status --hostname github.com
 login=$(gh api user --jq .login)
-[[ "$login" == rodrigo-devv ]] || { echo 'Entre na conta rodrigo-devv para publicar.' >&2; exit 1; }
+[[ "$login" == s3xz ]] || { echo 'Entre na conta s3xz para publicar.' >&2; exit 1; }
 [[ -z $(git status --porcelain) ]] || { echo 'Commit alterações antes de publicar.' >&2; exit 1; }
 /usr/bin/python3 tools/build-release.py
 if ! gh repo view "$repository" >/dev/null 2>&1; then

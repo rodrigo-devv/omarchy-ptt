@@ -1,6 +1,6 @@
 # Publicar a beta no GitHub
 
-Destino autorizado: `rodrigo-devv/omarchy-ptt`, repositório público independente.
+Destino autorizado: `s3xz/omarchy-ptt`, repositório público independente.
 O usuário aprovou explicitamente o destino e o conteúdo público desta beta.
 O script abaixo permite publicar versões futuras após revisar seus arquivos.
 
